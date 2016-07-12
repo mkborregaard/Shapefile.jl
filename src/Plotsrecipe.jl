@@ -15,26 +15,16 @@ function shapefile_coords(poly::Shapefile.ESRIShape)
     x, y
 end
 
-function shapefile_coords{T<:Shapefile.ESRIShape}(polys::AbstractVector{T})
-    x, y = zeros(0), zeros(0)
+function shapefile_coords{T<:Shapefile.ESRIShape}(polys::AbstractArray{T})
+    x, y = [], []
     for poly in polys
         xpart, ypart = shapefile_coords(poly)
-        append!(x, xpart)
-        append!(y, ypart)
+        push!(x, xpart)
+        push!(y, ypart)
     end
     x, y
 end
 
-function shapefile_coords{T<:Shapefile.ESRIShape}(polys::AbstractMatrix{T})
-    x, y = [], []
-    for c in 1:size(polys,2)
-        xy = shapefile_coords(vec(polys[:,c]))
-        push!(x, xy[1])
-        push!(y, xy[2])
-    end
-end
-
 @recipe f(poly::Shapefile.ESRIShape) = (seriestype --> :shape; linecolor --> :black; shapefile_coords(poly))
-@recipe f{T<:Shapefile.ESRIShape}(polys::AbstractVector{T}) = (seriestype --> :shape; linecolor --> :black; shapefile_coords(polys))
-@recipe f{T<:Shapefile.ESRIShape}(polys::AbstractMatrix{T}) = (seriestype --> :shape; linecolor --> :black; shapefile_coords(polys))
+@recipe f{T<:Shapefile.ESRIShape}(polys::AbstractArray{T}) = (seriestype --> :shape; linecolor --> :black; shapefile_coords(polys))
 @recipe f{T<:Shapefile.Handle}(::Type{T}, handle::T) = handle.shapes
